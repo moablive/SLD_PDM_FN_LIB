@@ -1,38 +1,37 @@
+// System
 using System;
-using System.Diagnostics;
+
+// SLD DLL
 using SolidWorks.Interop.sldworks;
-using SolidWorks.Interop.swconst;
 
 namespace SLD
 {
-    public class InstanciaSW
+    public class SLD
     {
+        // VAR swApp
         private SldWorks swApp = null;
 
-        public InstanciaSW(bool abreSW = true)
+        // RETURN swApp
+        public SldWorks SWApp
         {
-            if (abreSW)
-            {
-                try
-                {
-                    object processSW = Activator.CreateInstance(Type.GetTypeFromProgID("SldWorks.Application"));
-                    swApp = (SldWorks)processSW;
+            get { return swApp; }
+        }
 
-                    if (swApp == null)
-                        throw new Exception("Não foi possível instanciar o SOLIDWORKS!");
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"Erro ao iniciar o SOLIDWORKS: {ex.Message}");
-                }
+        // ABRE SLD
+        public SLD()
+        {
+            try
+            {
+                object processSW = Activator.CreateInstance(Type.GetTypeFromProgID("SldWorks.Application"));
+                swApp = (SldWorks)processSW;
+                swApp.Visible = true; // Deixa o SolidWorks visível
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(SLD)}",
+                    "ERRO - Ao Instanciar SldWorks. Ative o DEBUG para mais detalhes.",
+                    ex);
             }
         }
-
-        public int ObterCorInterface()
-        {
-            return swApp?.GetUserPreferenceIntegerValue((int)swUserPreferenceIntegerValue_e.swSystemColorsBackground) ?? -1;
-        }
-
-        public SldWorks SWApp => swApp;
     }
 }
