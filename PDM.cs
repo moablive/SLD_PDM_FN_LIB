@@ -10,114 +10,112 @@ namespace PDM
 {
     public static class PDM_FN
     {
-        private static List<string> _pdmlstDocumentos = new List<string>(); // LST DE BUSCA PARA RETORNO
-        private static IEdmVault7 CofrePDM; // COFRE PARA RETORNO DE LOGIN
+        private static string NOMECOFRE = "VAULT_NAME"; // NOME COFRE PDM
+        private static IEdmVault7 CofrePDM; // INSTANCIA DO COFRE 
+        IEdmFolder5 folder; // PDM OUT FOLDER
 
-        ///<summary>
-        /// strVar: Valor a ser consultado
-        /// strTipo: Se estiver com o valor de "Path" retorna o nome completo do arquivo. Se estiver com o valor "Name" retorna somente o nome do arquivo
-        /// var1: Nome da variável do cartão de dados onde a pesquisa será feita
-        /// </summary>
-        /// <param name="CofrePDM"></param>
-        /// <param name="strVar"></param>
-        /// <param name="strTipo"></param>
-        /// <param name="var1"></param>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        public static List<string> FindDocumentsbyVariable(IEdmVault7 CofrePDM, string strVar, string strTipo, string var1)
+        #region EXEMPLOS PDM
+        // EXEMPLO DE FILE 13: (IEdmFile13)CofrePDM.GetFileFromPath(dirFILE, out folder)
+        #endregion
+
+        // PDM => LOGIN
+        public static IEdmVault7 Login()
         {
             try
             {
-                // LIMPA LST PARA NOVA BUSCA
-                _pdmlstDocumentos.Clear();
+                if (CofrePDM == null)
+                    CofrePDM = new EdmVault5();
 
-                // Inicializa a busca no PDM
-                IEdmSearch8 search = (IEdmSearch8)CofrePDM.CreateSearch();
+                if (!CofrePDM.IsLoggedIn)
+                    CofrePDM.LoginAuto(NOMECOFRE, 0);
 
-                // Define a variável e o valor para a busca
-                string variavel = var1;
-                string valor = strVar;
-
-                // Configura a busca para encontrar apenas arquivos
-                search.SetToken(EdmSearchToken.Edmstok_FindFiles, true);
-
-                // Configura para buscar apenas a última versão dos arquivos
-                search.SetToken(EdmSearchToken.Edmstok_AllVersions, false);
-
-                // Adiciona o critério de pesquisa
-                search.AddVariable(var1, strVar);
-
-                // Inicializa o resultado da busca
-                IEdmSearchResult5 result = search.GetFirstResult();
-
-                // Verifica se nenhum resultado foi encontrado
-                if (result == null)
+                if (!CofrePDM.IsLoggedIn)
                 {
-                    _pdmlstDocumentos.Add("");
-                    return _pdmlstDocumentos; // Retorna lista com item vazio se não houver resultados
+                    MessageBox.Show("Erro ao realizar login no Cofre PDM.", "Erro de Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-
-                // Itera sobre todos os resultados encontrados
-                while (result != null)
-                {
-                    // Verifica se o tipo do objeto é um arquivo
-                    if (result.ObjectType == EdmObjectType.EdmObject_File)
-                    {
-                        // Adiciona o nome ou caminho do arquivo à lista, dependendo do tipo especificado
-                        if (strTipo.Equals("Name", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _pdmlstDocumentos.Add(result.Name);
-                        }
-                        else if (strTipo.Equals("Path", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _pdmlstDocumentos.Add(result.Path);
-                        }
-                    }
-
-                    // Obtém o próximo resultado
-                    result = search.GetNextResult();
-                }
-
-                return _pdmlstDocumentos; // Retorna a lista de documentos encontrados
             }
             catch (Exception ex)
             {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(FindDocumentsbyVariable)}", "ERRO - BUSCAR NO PDM. Ative o DEBUG para mais detalhes.", ex);
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(Login)}","ERRO - Ao Logar no PDM. Ative o DEBUG para mais detalhes.",ex);
+                throw new Exception(ex.Message);
+            }
 
-                // Método global de proteção contra erros do PDM
+            return CofrePDM;
+        }
+
+        // PDM => FILE
+        public static void Check_out(IEdmFile13 file)
+        {
+            try
+            {
+                // Obtém a pasta associada ao arquivo para realizar o bloqueio
+                IEdmFolder5 folder = file.GetFolder();
+
+                // Verifica se o arquivo não está bloqueado
+                if (!file.IsLocked)
+                {
+                    // Realiza o bloqueio do arquivo na pasta correspondente
+                    file.LockFile(folder.ID, 0);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(Check_out)}",
+                            "ERRO - Ao Fazer Checkout do ARQUIVO do PDM. Ative o DEBUG para mais detalhes.",
+                            ex);
+
                 ERROR_RELOAD.RestartExplorer();
 
                 throw new Exception(ex.Message);
             }
         }
 
-        public static string getVar_Cartao_PDM(IEdmVault7 CofrePDM, string nomeVariavel, string arquivo, string configuracao)
+        public static void Check_In(IEdmFile13 file)
         {
-            IEdmFile8 file;
-            IEdmFolder5 folder;
+            try
+            {
+                // Verifica se o arquivo está bloqueado antes de desbloquear
+                if (file.IsLocked)
+                {
+                    // Desbloqueia o arquivo e finaliza o check-in
+                    file.UnlockFile(0, "Checkin - VIA API", 8);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(Check_In)}",
+                            "ERRO - Ao Fazer Checkin do ARQUIVO do PDM. Ative o DEBUG para mais detalhes.",
+                            ex);
 
-            file = (IEdmFile8)CofrePDM.GetFileFromPath((string)arquivo, out folder);
+                ERROR_RELOAD.RestartExplorer();
 
-            IEdmEnumeratorVariable8 enumVariable = (IEdmEnumeratorVariable8)file.GetEnumeratorVariable("");
-            EdmStrLst5 cfgList = default(EdmStrLst5);
-            IEdmPos5 pos = default(IEdmPos5);
-            string cfgName = null;
+                throw new Exception(ex.Message);
+            }
+        }
+
+        // PDM => CARTAO
+        public static string getVar_Cartao(IEdmFile13 file, string nomeVariavel, string configuracao)
+        {
             object res = null;
 
             try
             {
-                cfgList = file.GetConfigurations();
-                pos = cfgList.GetHeadPosition();
+                IEdmEnumeratorVariable8 enumVariable = (IEdmEnumeratorVariable8)file.GetEnumeratorVariable("");
 
-                if (configuracao != "")
+                // Verifica se a configuração específica foi passada e tenta obter o valor
+                if (!string.IsNullOrEmpty(configuracao))
                 {
                     enumVariable.GetVar(nomeVariavel, configuracao, out res);
                 }
                 else
                 {
+                    // Obtém a lista de configurações e busca o valor para a primeira configuração encontrada
+                    EdmStrLst5 cfgList = file.GetConfigurations();
+                    IEdmPos5 pos = cfgList.GetHeadPosition();
+
                     while (!pos.IsNull)
                     {
-                        cfgName = cfgList.GetNext(pos);
+                        string cfgName = cfgList.GetNext(pos);
 
                         enumVariable.GetVar(nomeVariavel, cfgName, out res);
 
@@ -127,138 +125,119 @@ namespace PDM
                         }
                     }
                 }
+
                 enumVariable.CloseFile(true);
                 enumVariable.Flush();
             }
             catch (Exception ex)
             {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(getVar_Cartao_PDM)}", "ERRO - Ao Obter Valor da Variavel do CARTAO PDM. Ative o DEBUG para mais detalhes.", ex);
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(getVar_Cartao)}",
+                            "ERRO - Ao Obter Valor da Variavel do CARTAO PDM. Ative o DEBUG para mais detalhes.",
+                            ex);
 
-                // Método global de proteção contra erros do PDM
                 ERROR_RELOAD.RestartExplorer();
 
                 throw new Exception(ex.Message);
             }
 
-            // Valor localizado
             return res?.ToString();
         }
 
-        public static void setVar_Cartao(IEdmFile13 file, string NomVar, Object sVal)
+        public static void setVar_Cartao(IEdmFile13 file, string nomeVariavel, object valor, string configuracao)
         {
             try
             {
-                EdmStrLst5 cfgList = default(EdmStrLst5);
-                cfgList = file.GetConfigurations();
+                IEdmEnumeratorVariable5 enumVar = file.GetEnumeratorVariable("");
 
-                IEdmPos5 pos = default(IEdmPos5);
-                pos = cfgList.GetHeadPosition();
-                string cfgName = null;
-
-                while (!pos.IsNull)
+                // Se a configuração foi especificada, aplica o valor diretamente nela
+                if (!string.IsNullOrEmpty(configuracao))
                 {
-                    cfgName = cfgList.GetNext(pos);
-                    IEdmEnumeratorVariable5 EnumVar = file.GetEnumeratorVariable("");
-
-                    //Preenche a variável
-                    EnumVar.SetVar(NomVar, cfgName, ref sVal, false);
-
-                    //Este variável foi declarada apenas para poder utilizar 'CloseFile'. Não sei por quê disso mas no help está assim
-                    IEdmEnumeratorVariable8 EnumVarCod8 = (IEdmEnumeratorVariable8)EnumVar;
-
-                    EnumVarCod8.CloseFile(true);
-                    EnumVar.Flush();
-
+                    enumVar.SetVar(nomeVariavel, configuracao, ref valor, false);
                 }
+                else
+                {
+                    // Caso contrário, aplica o valor em todas as configurações
+                    EdmStrLst5 cfgList = file.GetConfigurations();
+                    IEdmPos5 pos = cfgList.GetHeadPosition();
+
+                    while (!pos.IsNull)
+                    {
+                        string cfgName = cfgList.GetNext(pos);
+                        enumVar.SetVar(nomeVariavel, cfgName, ref valor, false);
+                    }
+                }
+
+                IEdmEnumeratorVariable8 enumVarCod8 = (IEdmEnumeratorVariable8)enumVar;
+                enumVarCod8.CloseFile(true);
+                enumVar.Flush();
             }
             catch (Exception ex)
             {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(setVar_Cartao_PDM)}", "ERRO - Ao Gravar Valor da Variavel do CARTAO PDM. Ative o DEBUG para mais detalhes.", ex);
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(setVar_Cartao)}",
+                            "ERRO - Ao Gravar Valor da Variavel do CARTAO PDM. Ative o DEBUG para mais detalhes.",
+                            ex);
 
-                // Método global de proteção contra erros do PDM
-                ERROR_RELOAD.RestartExplorer();
-
-                throw new Exception(ex.Message);
-            }
-
-        }
-
-        public static void Checkout(IEdmVault7 CofrePDM, string dirFILE)
-        {
-            try
-            {
-                IEdmFile13 file;
-                IEdmFolder5 folder;
-                file = (IEdmFile13)CofrePDM.GetFileFromPath(dirFILE, out folder);
-
-                if (!file.IsLocked)
-                {
-                    file.LockFile(folder.ID, 0);
-                }
-            }
-            catch (Exception ex)
-            {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + ":" + nameof(CheckoutFile)}", "ERRO - Ao Fazer Checkout do ARQUIVO do PDM. Ative o DEBUG para mais detalhes.", ex);
-
-                // Método global de proteção contra erros do PDM
                 ERROR_RELOAD.RestartExplorer();
 
                 throw new Exception(ex.Message);
             }
         }
 
-        public static void CheckIn(IEdmVault7 CofrePDM, string dirFILE)
+        // RETORNA CAMINHO DO ARQUIVO QUE TEM ESTA VARIAVEL COM ESTE VALOR
+        public static List<string> FindDocumentsbyVariable(IEdmVault7 vault, string variableValue, string returnType, string variableName)
         {
+            var documentList = new List<string>();
+
             try
             {
-                IEdmFile13 file;
-                IEdmFolder5 folder;
+                // Inicializa a busca no PDM
+                IEdmSearch8 search = (IEdmSearch8)vault.CreateSearch();
 
-                file = (IEdmFile13)CofrePDM.GetFileFromPath(dirFILE, out folder);
+                // Configura a busca para encontrar apenas arquivos
+                search.SetToken(EdmSearchToken.Edmstok_FindFiles, true);
 
-                if (file.IsLocked)
+                // Configura para buscar apenas a última versão dos arquivos
+                search.SetToken(EdmSearchToken.Edmstok_AllVersions, false);
+
+                // Adiciona o critério de pesquisa com a variável e valor
+                search.AddVariable(variableName, variableValue);
+
+                // Inicializa o resultado da busca
+                IEdmSearchResult5 result = search.GetFirstResult();
+
+                // Verifica se nenhum resultado foi encontrado
+                if (result == null)
                 {
-                    file.UnlockFile(0, "Checkin - SKA VIA API", 8);
+                    documentList.Add(""); // Retorna lista com item vazio se não houver resultados
+                    return documentList;
                 }
+
+                // Itera sobre todos os resultados encontrados
+                while (result != null)
+                {
+                    IEdmFile13 file = (IEdmFile13)result;  // Faz o cast direto para IEdmFile13
+                    string filePath = returnType.Equals("Path", StringComparison.OrdinalIgnoreCase)
+                        ? file.GetLocalPath(file.GetFolder().ID)
+                        : file.Name;
+
+                    documentList.Add(filePath); // Adiciona o caminho ou nome à lista
+
+                    // Obtém o próximo resultado
+                    result = search.GetNextResult();
+                }
+
+                return documentList; // Retorna a lista de documentos encontrados
             }
             catch (Exception ex)
             {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(CheckInFile)}", "ERRO - Ao Fazer Cheking do ARQUIVO do PDM. Ative o DEBUG para mais detalhes.", ex);
+                Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(FindDocumentsbyVariable)}",
+                            "ERRO - BUSCAR NO PDM. Ative o DEBUG para mais detalhes.",
+                            ex);
 
-                // Método global de proteção contra erros do PDM
                 ERROR_RELOAD.RestartExplorer();
 
                 throw new Exception(ex.Message);
             }
-        }
-
-        public static IEdmVault7 LoginPDM(string NOMECOFRE)
-        {
-            try
-            {
-                // Inicializa o CofrePDM se ainda não estiver instanciado
-                if (CofrePDM == null)
-                    CofrePDM = new EdmVault5();
-
-                // Tenta logar automaticamente no Cofre PDM
-                if (!CofrePDM.IsLoggedIn)
-                    CofrePDM.LoginAuto(NOMECOFRE, 0);
-
-                // Verifica se o login foi bem-sucedido
-                if (!CofrePDM.IsLoggedIn)
-                {
-                    MessageBox.Show("Erro ao realizar login no Cofre PDM.", "Erro de Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Registra o erro no log e lança uma exceção com a mensagem de erro
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + nameof(LoginPDM)}", "ERRO - Ao Logar no PDM. Ative o DEBUG para mais detalhes.", ex);
-
-                throw new Exception(ex.Message);
-            }
-
-            return CofrePDM; // Retorna o objeto CofrePDM
         }
     }
 }
