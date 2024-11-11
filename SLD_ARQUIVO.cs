@@ -1,15 +1,19 @@
-//System;
+// System
 using System;
+using System.Collections.Generic;
 
-// SolidWorks DLLs
+// SKA
+using DebugSKA;
+
+// DLL SolidWorks
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 
-namespace SLD
+namespace rodovale.SLD_PDM
 {
     public class arquivoSLD
     {
-        private SldWorks swApp;
+        private readonly SldWorks swApp;
         private IModelDoc2 swModel;
 
         public arquivoSLD(SldWorks sldWorksApp)
@@ -24,9 +28,8 @@ namespace SLD
                 int errors = 0, warnings = 0;
 
                 swApp.Visible = visivel;
-
-                // Abre o documento no SolidWorks
-                swModel = swApp.OpenDoc6(caminhoArquivo, tipoDocumento, (int)swOpenDocOptions_e.swOpenDocOptions_Silent, "", ref errors, ref warnings);
+                swModel = swApp.OpenDoc6(caminhoArquivo, tipoDocumento,
+                    (int)swOpenDocOptions_e.swOpenDocOptions_Silent, "", ref errors, ref warnings);
 
                 if (swModel == null)
                 {
@@ -37,84 +40,84 @@ namespace SLD
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(AbrirDocumento)}",
-                    "ERRO - Ao Abrir Documento. Ative o DEBUG para mais detalhes.",
-                    ex);
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(AbrirDocumento)}",
+                    "ERRO - Ao Abrir Documento. Ative o DEBUG para mais detalhes.", ex);
+                return null;
             }
         }
 
-        public string GetActiveConfiguration(IModelDoc2 _swModel)
+        public string GetActiveConfiguration(IModelDoc2 model)
         {
             try
             {
-                return _swModel.ConfigurationManager.ActiveConfiguration.Name;
+                return model?.ConfigurationManager.ActiveConfiguration.Name
+                       ?? throw new Exception("Configuração ativa não encontrada.");
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(GetActiveConfiguration)}",
-                    "ERRO - Ao Obter a Configuracao Ativa. Ative o DEBUG para mais detalhes.",
-                    ex);
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(GetActiveConfiguration)}",
+                    "ERRO - Ao Obter a Configuração Ativa. Ative o DEBUG para mais detalhes.", ex);
+                return string.Empty;
             }
         }
 
-        public List<string> GetAllConfigurations(IModelDoc2 swModel)
+        public List<string> GetAllConfigurations(IModelDoc2 model)
         {
             var configNamesList = new List<string>();
 
             try
             {
-                var configNames = (string[])swModel.GetConfigurationNames();
+                var configNames = model?.GetConfigurationNames() as string[];
+                if (configNames == null) throw new Exception("Nenhuma configuração encontrada.");
 
                 foreach (var configName in configNames)
                 {
-                    var swConfig = (Configuration)swModel.GetConfigurationByName(configName);
-
-                    // Adiciona o nome da configuração e outros detalhes relevantes
-                    configNamesList.Add($"Name: {swConfig.Name}, " +
-                                        $"Alternate Name in BOM: {swConfig.UseAlternateNameInBOM}, " +
-                                        $"Alternate Name: {swConfig.AlternateName}, " +
-                                        $"Comment: {swConfig.Comment}");
+                    var config = model.GetConfigurationByName(configName) as Configuration;
+                    if (config != null)
+                    {
+                        configNamesList.Add($"Name: {config.Name}, " +
+                                            $"Alternate Name in BOM: {config.UseAlternateNameInBOM}, " +
+                                            $"Alternate Name: {config.AlternateName}, " +
+                                            $"Comment: {config.Comment}");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(GetAllConfigurations)}",
-                    "ERRO - Ao Obter Todas as Configuracoes. Ative o DEBUG para mais detalhes.",
-                    ex);
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(GetAllConfigurations)}",
+                    "ERRO - Ao Obter Todas as Configurações. Ative o DEBUG para mais detalhes.", ex);
             }
 
             return configNamesList;
         }
 
-        public void setPropriedade(string Valor, string Config, string pName)
+        public void SetPropriedade(string valor, string config, string propName)
         {
             try
             {
-                ModelDocExtension swModelDocExt = default(ModelDocExtension);
-                CustomPropertyManager swCustProp = default(CustomPropertyManager);
+                var swModelDocExt = swModel?.Extension;
+                var swCustProp = swModelDocExt?.get_CustomPropertyManager(config);
 
-                swModelDocExt = swModel.Extension;
+                if (swCustProp == null)
+                    throw new Exception("Gerenciador de propriedade personalizado não encontrado.");
 
-                // Get the custom property data
-                swCustProp = swModelDocExt.get_CustomPropertyManager(Config);
+                // Tenta deletar a propriedade antes de adicioná-la
                 try
                 {
-                    swCustProp.Delete(pName);
+                    swCustProp.Delete(propName);
                 }
                 catch (Exception ex)
                 {
-                    Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(setPropriedade)}",
-                        "ERRO - Ao setPropriedade. Ative o DEBUG para mais detalhes.",
-                        ex);
+                    Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(SetPropriedade)}",
+                        "ERRO - Ao deletar propriedade existente. Ative o DEBUG para mais detalhes.", ex);
                 }
 
-                swCustProp.Add3(pName, 30, Valor, 1);
+                swCustProp.Add3(propName, (int)swCustomInfoType_e.swCustomInfoText, valor, (int)swCustomPropertyAddOption_e.swCustomPropertyReplaceValue);
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(setPropriedade)}",
-                    "ERRO - Ao setPropriedade. Ative o DEBUG para mais detalhes.",
-                    ex);
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(SetPropriedade)}",
+                    "ERRO - Ao configurar propriedade. Ative o DEBUG para mais detalhes.", ex);
             }
         }
     }
