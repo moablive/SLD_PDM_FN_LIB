@@ -121,7 +121,6 @@ namespace rodovale.SLD_PDM
             }
         }
 
-
         /// <summary>
         /// Verifica se o modelo é chapa metálica
         /// </summary>
