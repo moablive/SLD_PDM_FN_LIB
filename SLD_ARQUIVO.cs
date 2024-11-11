@@ -19,24 +19,71 @@ namespace SLD
 
         public IModelDoc2 AbrirDocumento(string caminhoArquivo, int tipoDocumento, bool visivel)
         {
-            int errors = 0, warnings = 0;
-
-            swApp.Visible = visivel;
-
-            // Abre o documento no SolidWorks
-            swModel = swApp.OpenDoc6(caminhoArquivo, tipoDocumento, (int)swOpenDocOptions_e.swOpenDocOptions_Silent, "", ref errors, ref warnings);
-
-            if (swModel == null)
+            try
             {
-                throw new Exception("Não foi possível instanciar o arquivo no SolidWorks.");
-            }
+                int errors = 0, warnings = 0;
 
-            return swModel;
+                swApp.Visible = visivel;
+
+                // Abre o documento no SolidWorks
+                swModel = swApp.OpenDoc6(caminhoArquivo, tipoDocumento, (int)swOpenDocOptions_e.swOpenDocOptions_Silent, "", ref errors, ref warnings);
+
+                if (swModel == null)
+                {
+                    throw new Exception("Não foi possível instanciar o arquivo no SolidWorks.");
+                }
+
+                return swModel;
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(AbrirDocumento)}",
+                    "ERRO - Ao Abrir Documento. Ative o DEBUG para mais detalhes.",
+                    ex);
+            }
         }
 
-        public string getActiveConfiguration(IModelDoc2 _swModel)
+        public string GetActiveConfiguration(IModelDoc2 _swModel)
         {
-            return _swModel.ConfigurationManager.ActiveConfiguration.Name;
+            try
+            {
+                return _swModel.ConfigurationManager.ActiveConfiguration.Name;
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(GetActiveConfiguration)}",
+                    "ERRO - Ao Obter a Configuracao Ativa. Ative o DEBUG para mais detalhes.",
+                    ex);
+            }
+        }
+
+        public List<string> GetAllConfigurations(IModelDoc2 swModel)
+        {
+            var configNamesList = new List<string>();
+
+            try
+            {
+                var configNames = (string[])swModel.GetConfigurationNames();
+
+                foreach (var configName in configNames)
+                {
+                    var swConfig = (Configuration)swModel.GetConfigurationByName(configName);
+
+                    // Adiciona o nome da configuração e outros detalhes relevantes
+                    configNamesList.Add($"Name: {swConfig.Name}, " +
+                                        $"Alternate Name in BOM: {swConfig.UseAlternateNameInBOM}, " +
+                                        $"Alternate Name: {swConfig.AlternateName}, " +
+                                        $"Comment: {swConfig.Comment}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(arquivoSLD).Name.ToUpper() + ":" + nameof(GetAllConfigurations)}",
+                    "ERRO - Ao Obter Todas as Configuracoes. Ative o DEBUG para mais detalhes.",
+                    ex);
+            }
+
+            return configNamesList;
         }
 
         public void setPropriedade(string Valor, string Config, string pName)
