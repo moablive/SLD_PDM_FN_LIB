@@ -154,7 +154,7 @@ namespace rodovale.SLD_PDM
             return sheetMetal;
         }
 
-        private string getComprimento_CutListFolder()
+        private string getComprimento_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace rodovale.SLD_PDM
 
                 Feature swFeat;
 
-                swFeat = (Feature)swModel.FirstFeature();
+                swFeat = (Feature)model.FirstFeature();
 
                 while ((swFeat != null))
                 {
@@ -186,7 +186,7 @@ namespace rodovale.SLD_PDM
                 throw new Exception(ex.Message);
             }
         }
-        private string getLargura_CutListFolder()
+        private string getLargura_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -194,7 +194,7 @@ namespace rodovale.SLD_PDM
 
                 Feature swFeat;
 
-                swFeat = (Feature)swModel.FirstFeature();
+                swFeat = (Feature)model.FirstFeature();
 
                 while ((swFeat != null))
                 {
@@ -216,7 +216,7 @@ namespace rodovale.SLD_PDM
                 throw new Exception(ex.Message);
             }
         }
-        private string getEspessura_CutListFolder()
+        private string getEspessura_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -224,7 +224,7 @@ namespace rodovale.SLD_PDM
 
                 Feature swFeat;
 
-                swFeat = (Feature)swModel.FirstFeature();
+                swFeat = (Feature)model.FirstFeature();
 
                 while ((swFeat != null))
                 {
