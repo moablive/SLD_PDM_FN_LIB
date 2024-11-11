@@ -120,5 +120,37 @@ namespace rodovale.SLD_PDM
                     "ERRO - Ao configurar propriedade. Ative o DEBUG para mais detalhes.", ex);
             }
         }
+
+
+        /// <summary>
+        /// Verifica se o modelo é chapa metálica
+        /// </summary>
+        /// <returns></returns>
+        public bool isSheetMetal()
+        {
+            bool sheetMetal = false;
+            try
+            {
+                ModelDocExtension mdExtension = swModel.Extension;
+                Feature f = (Feature)swModel.FirstFeature();
+
+                while (f != null)
+                {
+                    if (f.GetTypeName2().ToUpper() == "SHEETMETAL")
+                    {
+                        sheetMetal = true;
+                        break;
+                    }
+                    f = (Feature)f.GetNextFeature();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(isSheetMetal)}",
+                    "ERRO - Ao Verificar se item is SHEETMETAL. Ative o DEBUG para mais detalhes.", ex);
+            }
+            return sheetMetal;
+        }
     }
 }
