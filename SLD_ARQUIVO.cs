@@ -1,6 +1,8 @@
 // System
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
+
 
 // SKA
 using DebugSKA;
@@ -150,6 +152,189 @@ namespace rodovale.SLD_PDM
                     "ERRO - Ao Verificar se item is SHEETMETAL. Ative o DEBUG para mais detalhes.", ex);
             }
             return sheetMetal;
+        }
+
+        private string getComprimento_CutListFolder()
+        {
+            try
+            {
+                string comprimento = "";
+
+                Feature swFeat;
+
+                swFeat = (Feature)swModel.FirstFeature();
+
+                while ((swFeat != null))
+                {
+                    string a = swFeat.GetTypeName();
+                    if (swFeat.GetTypeName2() == "CutListFolder")
+                    {
+                        if (!swFeat.ExcludeFromCutList && !swFeat.IsSuppressed())
+                        {
+                            comprimento = getPropridedadeDaCutList(swFeat, "selecionado da Caixa delimitadora", "Bounding Box Length");
+                            break;
+                        }
+                    }
+
+                    swFeat = (Feature)swFeat.GetNextFeature();
+                }
+
+                return comprimento;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        private string getLargura_CutListFolder()
+        {
+            try
+            {
+                string largura = "";
+
+                Feature swFeat;
+
+                swFeat = (Feature)swModel.FirstFeature();
+
+                while ((swFeat != null))
+                {
+                    if (swFeat.GetTypeName2() == "CutListFolder")
+                    {
+                        if (!swFeat.ExcludeFromCutList && !swFeat.IsSuppressed())
+                        {
+                            largura = getPropridedadeDaCutList(swFeat, "Largura da Caixa delimitadora", "Bounding Box Width");
+                            break;
+                        }
+                    }
+                    swFeat = (Feature)swFeat.GetNextFeature();
+                }
+
+                return largura;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        private string getEspessura_CutListFolder()
+        {
+            try
+            {
+                string espessura = "";
+
+                Feature swFeat;
+
+                swFeat = (Feature)swModel.FirstFeature();
+
+                while ((swFeat != null))
+                {
+                    if (swFeat.GetTypeName2() == "CutListFolder")
+                    {
+                        if (!swFeat.ExcludeFromCutList && !swFeat.IsSuppressed())
+                        {
+                            espessura = getPropridedadeDaCutList(swFeat, "Espessura da Chapa metálica", "Sheet Metal Thickness");
+                            break;
+                        }
+                    }
+                    swFeat = (Feature)swFeat.GetNextFeature();
+                }
+
+                return espessura;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        private string getPropridedadeDaCutList(Feature swFeat, string propriedadeBr, string propriedadeEng)
+        {
+            try
+            {
+                string valorPropriedade = "";
+                string CustomPropVal = "";
+                string CustomPropResolvedVal = "";
+
+                CustomPropertyManager CustomPropMgr = (CustomPropertyManager)swFeat.CustomPropertyManager;
+
+                string[] vCustomPropNames = vCustomPropNames = (string[])CustomPropMgr.GetNames();
+
+                if ((vCustomPropNames != null))
+                {
+                    for (int ii = 0; ii <= (vCustomPropNames.Length - 1); ii++)
+                    {
+                        string CustomPropName = null;
+
+                        CustomPropName = (string)vCustomPropNames[ii];
+
+                        if (CustomPropName.Contains(propriedadeBr) || CustomPropName.Contains(propriedadeEng))
+                        {
+                            CustomPropMgr.Get2(CustomPropName, out CustomPropVal, out CustomPropResolvedVal);
+
+                            valorPropriedade = CustomPropResolvedVal.Replace(".", ",");
+
+                            break;
+                        }
+
+                    }
+                }
+
+                return valorPropriedade;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// 1 = CRIA AUTOMATICO
+        /// 2 = ATUALIZA
+        /// </summary>
+        /// <param name="opcao"></param>
+        /// <exception cref="Exception"></exception>
+        private void AtualizarCutList(int opcao)
+        {
+            try
+            {
+                //Metodo utilizado para atualizar a CUTLIST ou definir como atualização automatica, pois as vezes os dados não são carregados pois estão desatualizados
+                BodyFolder swBodyFolder;
+                SelectionMgr swSelMgr = default(SelectionMgr);
+                swSelMgr = (SelectionMgr)swModel.SelectionManager;
+
+                bool boolstatus = swModel.Extension.SelectByID2("Solid Bodies", "BDYFOLDER", 0, 0, 0, false, 0, null, 0);
+                if (!boolstatus)
+                {
+                    boolstatus = swModel.Extension.SelectByID2("Corpos sólidos", "BDYFOLDER", 0, 0, 0, false, 0, null, 0);
+                }
+                if (boolstatus)
+                {
+                    Feature swFeat = (Feature)swSelMgr.GetSelectedObject6(1, -1);
+                    swBodyFolder = (BodyFolder)swFeat.GetSpecificFeature2();
+                    //Escolher uma opção
+                    //1) Aqui define se quer fazer automaticamente
+                    if (opcao == 1)
+                    {
+                        swBodyFolder.SetAutomaticCutList(true);
+                        swBodyFolder.SetAutomaticUpdate(true);
+                    }
+                    else
+                    {
+                        //2) Aqui se quer somente atualizar sem deixar automatico
+                        swBodyFolder.UpdateCutList();
+                    }
+
+                }
+                else
+                {
+                    MessageBox.Show("ERRO AO OBTER DADOS DA CUTLIST! \nVERIFIQUE O LOG PARA MAIS DETALHES!", "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    DebugSKA.Log.GravarLog($"{this.GetType().Name.ToUpper() + ":" + nameof(AtualizarCutList)}", " Erro ao obter os valores da Cut List." +
+                        "\nÉ necessário atualizar a lista de corte clicando com o direito em Lista de Corte(CutList), e após clicar em 'Atualizar' ou marcar a opção 'Atualizar Automaticamente'.", null);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
