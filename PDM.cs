@@ -12,7 +12,7 @@ namespace PDM
     {
         private static string NOMECOFRE = "VAULT_NAME"; // NOME COFRE PDM
         private static IEdmVault7 CofrePDM; // INSTANCIA DO COFRE 
-        IEdmFolder5 folder; // PDM OUT FOLDER
+         private static IEdmFolder5 folder; // PDM OUT FOLDER
 
         #region EXEMPLOS PDM
         // EXEMPLO DE FILE 13: (IEdmFile13)CofrePDM.GetFileFromPath(dirFILE, out folder)
