@@ -34,6 +34,11 @@ namespace SLD
             return swModel;
         }
 
+        public string getActiveConfiguration(IModelDoc2 _swModel)
+        {
+            return _swModel.ConfigurationManager.ActiveConfiguration.Name;
+        }
+
         public void setPropriedade(string Valor, string Config, string pName)
         {
             try
