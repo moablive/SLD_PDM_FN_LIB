@@ -3,15 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-
-// SKA
-using DebugSKA;
-
 // DLL SolidWorks
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 
-namespace rodovale.SLD_PDM
+namespace SLD
 {
     public class arquivoSLD
     {
@@ -23,6 +19,7 @@ namespace rodovale.SLD_PDM
             swApp = sldWorksApp;
         }
 
+        #region DOCUMENTO
         public IModelDoc2 AbrirDocumento(string caminhoArquivo, int tipoDocumento, bool visivel)
         {
             try
@@ -48,6 +45,21 @@ namespace rodovale.SLD_PDM
             }
         }
 
+        public void FecharDocumento(string caminhoArquivo)
+        {
+            try
+            {
+                swApp.CloseDoc(caminhoArquivo);
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(FecharDocumento)}",
+                    "ERRO - Ao Fechar Documento. Ative o DEBUG para mais detalhes.", ex);
+            }
+        }
+        #endregion
+
+        #region CONFIG
         public string GetActiveConfiguration(IModelDoc2 model)
         {
             try
@@ -92,12 +104,14 @@ namespace rodovale.SLD_PDM
 
             return configNamesList;
         }
+        #endregion
 
-        public void SetPropriedade(string valor, string config, string propName)
+        #region PROPRIEDADE
+        public void SetPropriedade(IModelDoc2 model, string valor, string config, string propName)
         {
             try
             {
-                var swModelDocExt = swModel?.Extension;
+                var swModelDocExt = model?.Extension;
                 var swCustProp = swModelDocExt?.get_CustomPropertyManager(config);
 
                 if (swCustProp == null)
@@ -123,17 +137,156 @@ namespace rodovale.SLD_PDM
             }
         }
 
+        public string GetPropriedade(string Valor, string Config, IModelDoc2 model)
+        {
+            try
+            {
+                ModelDocExtension swModelDocExt = model.Extension;
+                CustomPropertyManager swCustProp = swModelDocExt.get_CustomPropertyManager(Config);
+                bool status = swCustProp.Get4(Valor, false, out _, out string swPropAtual);
+
+                if (status)
+                {
+                    return swPropAtual;
+                }
+                else
+                {
+                    Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(GetPropriedade)}",
+                        "ERRO - Propriedade não encontrada ou vazia. Verifique o nome e a configuração da propriedade.");
+                    return string.Empty;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(GetPropriedade)}",
+                    "ERRO - Ao obter a propriedade personalizada. Ative o DEBUG para mais detalhes.", ex);
+                return string.Empty;
+            }
+        }
+        #endregion
+
+        public objCAIXADELIMITADORA ObtemCaixaDelimitadora(IModelDoc2 model, string conf)
+        {
+            try
+            {
+                int sStatus = 0;
+                ModelDocExtension swModelDocExt = model.Extension;
+
+                // Insere o recurso da caixa delimitadora
+                model.FeatureManager.InsertGlobalBoundingBox(1, false, false, out sStatus);
+
+                // Obtém as propriedades da caixa delimitadora usando o método atualizado
+                string comp = GetPropriedade("Comprimento total da caixa delimitadora", conf, model);
+                string larg = GetPropriedade("Largura total da caixa delimitadora", conf, model);
+                string espess = GetPropriedade("Espessura total da caixa delimitadora", conf, model);
+
+                // Cria o objeto caixa delimitadora com as propriedades obtidas
+                var caixaDelimitadora = new objCAIXADELIMITADORA
+                {
+                    comp = comp,
+                    larg = larg,
+                    espess = espess
+                };
+
+                // Loop nas features para selecionar e apagar o recurso WELDMENT
+                Feature f = (Feature)model.FirstFeature();
+
+                while (f != null)
+                {
+                    if (f.GetTypeName2().ToUpper() == "BOUNDINGBOXPROFILEFEAT")
+                    {
+                        Entity swEntity = (Entity)f;
+                        swEntity.Select4(false, null);
+                        model.EditDelete(); // Apaga o recurso WELDMENT
+                        break;
+                    }
+                    f = (Feature)f.GetNextFeature();
+                }
+
+                return caixaDelimitadora;
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(ObtemCaixaDelimitadora)}",
+                    "ERRO - Ao obter a caixa delimitadora. Ative o DEBUG para mais detalhes.", ex);
+                return null; // Retorna null em caso de erro
+            }
+        }
+
+        #region LISTA DE CORTE - ElementoEstrutural
+        public objLISTACORTE ElementoEstrutural(IModelDoc2 model)
+        {
+            objLISTACORTE listaCorte = null;
+
+            try
+            {
+                Feature swFeat = (Feature)model.FirstFeature();
+                CustomPropertyManager customPropMgr = null;
+
+                while (swFeat != null)
+                {
+                    // Verifica se o tipo é "CutListFolder"
+                    if (swFeat.GetTypeName() == "CutListFolder" && !swFeat.ExcludeFromCutList && !swFeat.IsSuppressed())
+                    {
+                        customPropMgr = (CustomPropertyManager)swFeat.CustomPropertyManager;
+
+                        // Cria o objeto objLISTACORTE com as propriedades obtidas
+                        listaCorte = new objLISTACORTE
+                        {
+                            comprimento = getValorDaPropriedade(customPropMgr, "COMPRIMENTO"),
+                            description = getValorDaPropriedade(customPropMgr, "DESCRIPTION"),
+                            dimensoes = getValorDaPropriedade(customPropMgr, "DIMENSOES"),
+                            peso = getValorDaPropriedade(customPropMgr, "PESO"),
+                            quantity = getValorDaPropriedade(customPropMgr, "QUANTITY"),
+                            totallength = getValorDaPropriedade(customPropMgr, "TOTAL LENGTH")
+                        };
+
+                        // Interrompe o loop após encontrar o primeiro objeto correspondente
+                        break;
+                    }
+
+                    // Passa para a próxima feature
+                    swFeat = (Feature)swFeat.GetNextFeature();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(ElementoEstrutural)}",
+                    "ERRO - Ao instanciar elemento estrutural. Ative o DEBUG para mais detalhes.", ex);
+            }
+
+            return listaCorte;
+        }
+        private string getValorDaPropriedade(CustomPropertyManager CustomPropMgr, string propriedade)
+        {
+            string CustomPropVal = "";
+            string CustomPropResolvedVal = "";
+            try
+            {
+                CustomPropMgr.Get2(propriedade, out CustomPropVal, out CustomPropResolvedVal);
+
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{nameof(arquivoSLD).ToUpper()}:{nameof(getValorDaPropriedade)}",
+                    "ERRO - Ao obter a propriedade personalizada. Ative o DEBUG para mais detalhes.", ex);
+                return string.Empty;
+            }
+            return CustomPropResolvedVal;
+        }
+        #endregion
+
         /// <summary>
         /// Verifica se o modelo é chapa metálica
         /// </summary>
         /// <returns></returns>
-        public bool isSheetMetal()
+        public bool isSheetMetal(IModelDoc2 model)
         {
             bool sheetMetal = false;
             try
             {
-                ModelDocExtension mdExtension = swModel.Extension;
-                Feature f = (Feature)swModel.FirstFeature();
+                ModelDocExtension mdExtension = model.Extension;
+                Feature f = (Feature)model.FirstFeature();
 
                 while (f != null)
                 {
@@ -154,7 +307,7 @@ namespace rodovale.SLD_PDM
             return sheetMetal;
         }
 
-        private string getComprimento_CutListFolder(IModelDoc2 model)
+        public string getComprimento_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -186,7 +339,7 @@ namespace rodovale.SLD_PDM
                 throw new Exception(ex.Message);
             }
         }
-        private string getLargura_CutListFolder(IModelDoc2 model)
+        public string getLargura_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -216,7 +369,7 @@ namespace rodovale.SLD_PDM
                 throw new Exception(ex.Message);
             }
         }
-        private string getEspessura_CutListFolder(IModelDoc2 model)
+        public string getEspessura_CutListFolder(IModelDoc2 model)
         {
             try
             {
@@ -292,7 +445,7 @@ namespace rodovale.SLD_PDM
         /// </summary>
         /// <param name="opcao"></param>
         /// <exception cref="Exception"></exception>
-        private void AtualizarCutList(int opcao)
+        public void AtualizarCutList(int opcao)
         {
             try
             {
@@ -336,5 +489,52 @@ namespace rodovale.SLD_PDM
                 throw new Exception(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Verifica se o modelo é ementoEstrutural
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public bool iselementoEstrutural(IModelDoc2 model)
+        {
+            try
+            {
+                bool Weldment = false;
+
+                // Verifica se o documento ativo é uma peça
+                if (model is PartDoc)
+                {
+                    PartDoc partDoc = (PartDoc)model;
+
+                    // Usando o método IsWeldment para verificar
+                    Weldment = partDoc.IsWeldment();
+                }
+
+                return Weldment;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
+} // NAMESPACE
+
+#region OBJ
+public class objCAIXADELIMITADORA
+{
+    public string comp { get; set; }
+    public string larg { get; set; }
+    public string espess { get; set; }
 }
+
+public class objLISTACORTE
+{
+    public string comprimento { get; set; }
+    public string description { get; set; }
+    public string dimensoes { get; set; }
+    public string peso { get; set; }
+    public string quantity { get; set; }
+    public string totallength { get; set; }
+}
+#endregion

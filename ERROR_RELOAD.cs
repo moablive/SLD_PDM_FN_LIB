@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace PDM
+namespace SLD_PDM
 {
     public static class ERROR_RELOAD
     {

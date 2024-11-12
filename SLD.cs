@@ -1,6 +1,9 @@
 // System
 using System;
 
+// SKA
+using DebugSKA;
+
 // SLD DLL
 using SolidWorks.Interop.sldworks;
 
@@ -30,6 +33,21 @@ namespace SLD
             {
                 Log.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(SLD)}",
                     "ERRO - Ao Instanciar SldWorks. Ative o DEBUG para mais detalhes.",
+                    ex);
+            }
+        }
+
+        public void FecharSLD()
+        {
+            try
+            {
+                if (swApp != null)
+                    swApp.ExitApp();
+            }
+            catch (Exception ex)
+            {
+                Log.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(FecharSLD)}",
+                    "ERRO - Ao Fechar SldWorks. Ative o DEBUG para mais detalhes.",
                     ex);
             }
         }
