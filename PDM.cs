@@ -97,6 +97,35 @@ namespace PDM
             }
         }
 
+        public static void ExcluirArquivoPDM(IEdmVault7 cofre, string caminhoArquivo)
+        {
+            try
+            {
+                // Obtém o arquivo e o diretório associado
+                IEdmFile5 file;
+                IEdmFolder5 folder;
+                file = (IEdmFile5)cofre.GetFileFromPath(caminhoArquivo, out folder);
+
+                if (file != null && folder != null)
+                {
+                    int fileID = file.ID;
+                    int folderID = folder.ID;
+
+                    // Tenta excluir o arquivo
+                    folder.DeleteFile(0, fileID, true); // `true` para remover a cópia local
+                }
+                else
+                {
+                    MessageBox.Show($"Arquivo '{caminhoArquivo}' não encontrado no PDM.", "Arquivo não encontrado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao excluir o arquivo '{caminhoArquivo}' do PDM: {ex.Message}", "Erro de Exclusão", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DebugSKA.Log.GravarLog($"{typeof(PDM).Name.ToUpper() + ":" + nameof(ExcluirArquivoPDM)}", "ERRO - Ao Excluir Arquivo do PDM. Ative o DEBUG para mais detalhes.", ex);
+            }
+        }
+
         // PDM => CARTAO
         public static string getVar_Cartao(IEdmFile13 file, string nomeVariavel, string configuracao)
         {
