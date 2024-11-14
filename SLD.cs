@@ -7,7 +7,7 @@ using DebugSKA;
 // SLD DLL
 using SolidWorks.Interop.sldworks;
 
-namespace SLD
+namespace SLD_PDM
 {
     public class SLD
     {

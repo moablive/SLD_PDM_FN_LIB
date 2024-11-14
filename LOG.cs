@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace processarParaOutraOF.PDM
+namespace SLD_PDM
 {
     public static class Log
     {
