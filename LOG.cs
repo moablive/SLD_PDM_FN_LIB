@@ -1,12 +1,12 @@
 using System;
 using System.IO;
 
-namespace SLD_PDM
+namespace processarParaOutraOF.PDM
 {
     public static class Log
     {
         // Caminho do arquivo de log
-        private static readonly string logFilePath = @"C:\TEMP\moablog.txt";
+        private static readonly string logFilePath = @"C:\TEMP\CUSTOMLOG.txt";
 
         /// <summary>
         /// Método para gravar logs em um arquivo de texto estático
@@ -18,9 +18,22 @@ namespace SLD_PDM
         {
             try
             {
+                // Verifica se o diretório existe, caso contrário, cria o diretório
+                string logDirectory = Path.GetDirectoryName(logFilePath);
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
+                // Verifica se o arquivo de log existe, caso contrário, cria o arquivo
+                if (!File.Exists(logFilePath))
+                {
+                    File.Create(logFilePath).Dispose();
+                }
+
                 // Cria o conteúdo do log com data, hora e detalhes do erro
                 string logContent = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} | {metodo} | {mensagem}";
-                
+
                 if (excecao != null)
                 {
                     logContent += $" | Exceção: {excecao.Message} | StackTrace: {excecao.StackTrace}";
