@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.IO;
+using System.Windows.Forms;
 
 namespace SLD_PDM
 {
-    public static class Log
+    public static class LOG
     {
         // Caminho do arquivo de log
         private static readonly string logFilePath = @"C:\TEMP\CUSTOMLOG.txt";
@@ -44,8 +45,8 @@ namespace SLD_PDM
             }
             catch (Exception ex)
             {
-                // Em caso de erro ao gravar o log, você pode implementar uma lógica adicional de fallback se necessário
-                Console.WriteLine("Erro ao gravar o log: " + ex.Message);
+                MessageBox.Show($"erro ao GERAR {logFilePath}\n - {ex}");
+                throw;
             }
         }
     }

@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 
-namespace SLD_PDM
+namespace SLD_PDM.PDM
 {
     public static class ERROR_RELOAD
     {
@@ -27,7 +27,7 @@ namespace SLD_PDM
             }
             catch (Exception ex)
             {
-                DebugSKA.Log.GravarLog($"{typeof(PDM_FN).Name.ToUpper() + ":" + ":" + nameof(RestartExplorer)}", "ERRO - Ao Fazer Checkout do ARQUIVO do PDM. Ative o DEBUG para mais detalhes.", ex);
+                LOG.GravarLog($"{typeof(ERROR_RELOAD).Name.ToUpper() + ":" + ":" + nameof(RestartExplorer)}", "ERRO - NO PDM", ex);
                 throw new Exception(ex.Message);
             }
         }

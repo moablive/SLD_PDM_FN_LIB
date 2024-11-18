@@ -1,18 +1,13 @@
-// System
-using System;
+﻿using System;
 
-// SKA
-using DebugSKA;
-
-// SLD DLL
 using SolidWorks.Interop.sldworks;
 
-namespace SLD_PDM
+namespace SLD_PDM.SLD
 {
     public class SLD
     {
         // VAR swApp
-        private SldWorks swApp = null;
+        public SldWorks swApp = null;
 
         // RETURN swApp
         public SldWorks SWApp
@@ -31,7 +26,7 @@ namespace SLD_PDM
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(SLD)}",
+                LOG.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(SLD)}",
                     "ERRO - Ao Instanciar SldWorks. Ative o DEBUG para mais detalhes.",
                     ex);
             }
@@ -46,7 +41,7 @@ namespace SLD_PDM
             }
             catch (Exception ex)
             {
-                Log.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(FecharSLD)}",
+                LOG.GravarLog($"{typeof(SLD).Name.ToUpper()}:{nameof(FecharSLD)}",
                     "ERRO - Ao Fechar SldWorks. Ative o DEBUG para mais detalhes.",
                     ex);
             }
