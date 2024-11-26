@@ -49,6 +49,7 @@ namespace SLD_PDM.SLD
                     "ERRO - Ao configurar propriedade. Ative o DEBUG para mais detalhes.", ex);
             }
         }
+
         public string GetPropriedade(string prop, string Config, IModelDoc2 model)
         {
             try
@@ -75,7 +76,6 @@ namespace SLD_PDM.SLD
                 return string.Empty;
             }
         }
-
 
         public objCAIXADELIMITADORA ObtemCaixaDelimitadora(IModelDoc2 model, string conf)
         {

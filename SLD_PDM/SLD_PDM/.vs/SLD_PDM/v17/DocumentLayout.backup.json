@@ -1,16 +1,26 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\SLD_PDM\\SLD_PDM\\",
+  "WorkspaceRootPath": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\sld_pdm\\sld_pdm\\sld_pdm\\log.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\log.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\!!lib\\sld_pdm_fn_lib\\sld_pdm\\sld_pdm\\sld_pdm\\pdm\\pdm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\pdm\\pdm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|SLD_PDM||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\!!lib\\sld_pdm_fn_lib\\sld_pdm\\sld_pdm\\sld_pdm\\sld\\sld_doc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\sld\\sld_doc.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\sld_pdm\\sld_pdm\\sld_pdm\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|5e9a8ac2-4f34-4521-858f-4c248ba31532"
+      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\!!lib\\sld_pdm_fn_lib\\sld_pdm\\sld_pdm\\sld_pdm\\sld\\sld.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\sld\\sld.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\!!lib\\sld_pdm_fn_lib\\sld_pdm\\sld_pdm\\sld_pdm\\sld\\sld_propriedade.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\sld\\sld_propriedade.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|d:\\!!lib\\sld_pdm_fn_lib\\sld_pdm\\sld_pdm\\sld_pdm\\sld\\sld_sheetmetal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CE536D0F-1D05-44E3-9709-FA73A9EF7A69}|SLD_PDM\\SLD_PDM.csproj|solutionrelative:sld_pdm\\sld\\sld_sheetmetal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -20,32 +30,75 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SLD.cs",
+              "DocumentMoniker": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD.cs",
+              "RelativeDocumentMoniker": "SLD_PDM\\SLD\\SLD.cs",
+              "ToolTip": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD.cs",
+              "RelativeToolTip": "SLD_PDM\\SLD\\SLD.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-26T12:02:47.931Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "SLD_PDM",
-              "DocumentMoniker": "D:\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD_PDM.csproj",
-              "RelativeDocumentMoniker": "SLD_PDM\\SLD_PDM.csproj",
-              "ToolTip": "D:\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD_PDM.csproj",
-              "RelativeToolTip": "SLD_PDM\\SLD_PDM.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-11-14T13:59:58.734Z",
+              "Title": "SLD_DOC.cs",
+              "DocumentMoniker": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_DOC.cs",
+              "RelativeDocumentMoniker": "SLD_PDM\\SLD\\SLD_DOC.cs",
+              "ToolTip": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_DOC.cs",
+              "RelativeToolTip": "SLD_PDM\\SLD\\SLD_DOC.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-26T11:46:37.829Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SLD_SheetMetal.cs",
+              "DocumentMoniker": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_SheetMetal.cs",
+              "RelativeDocumentMoniker": "SLD_PDM\\SLD\\SLD_SheetMetal.cs",
+              "ToolTip": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_SheetMetal.cs",
+              "RelativeToolTip": "SLD_PDM\\SLD\\SLD_SheetMetal.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAkwOkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-26T11:46:24.557Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SLD_PROPRIEDADE.cs",
+              "DocumentMoniker": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_PROPRIEDADE.cs",
+              "RelativeDocumentMoniker": "SLD_PDM\\SLD\\SLD_PROPRIEDADE.cs",
+              "ToolTip": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\SLD\\SLD_PROPRIEDADE.cs",
+              "RelativeToolTip": "SLD_PDM\\SLD\\SLD_PROPRIEDADE.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-11-26T11:46:49.089Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "LOG.cs",
-              "DocumentMoniker": "D:\\SLD_PDM\\SLD_PDM\\SLD_PDM\\LOG.cs",
-              "RelativeDocumentMoniker": "SLD_PDM\\LOG.cs",
-              "ToolTip": "D:\\SLD_PDM\\SLD_PDM\\SLD_PDM\\LOG.cs",
-              "RelativeToolTip": "SLD_PDM\\LOG.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAABAAAAAAAAAA==",
+              "Title": "PDM.cs",
+              "DocumentMoniker": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\PDM\\PDM.cs",
+              "RelativeDocumentMoniker": "SLD_PDM\\PDM\\PDM.cs",
+              "ToolTip": "D:\\!!LIB\\SLD_PDM_FN_LIB\\SLD_PDM\\SLD_PDM\\SLD_PDM\\PDM\\PDM.cs",
+              "RelativeToolTip": "SLD_PDM\\PDM\\PDM.cs",
+              "ViewState": "AgIAAKQAAAAAAAAAAAApwLQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-18T13:48:38.757Z",
+              "WhenOpened": "2024-11-26T12:04:03.829Z",
               "IsPinned": true,
               "EditorCaption": ""
             },

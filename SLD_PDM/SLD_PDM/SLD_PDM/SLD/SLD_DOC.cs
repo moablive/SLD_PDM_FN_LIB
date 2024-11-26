@@ -10,7 +10,6 @@ namespace SLD_PDM.SLD
 {
     public class SLD_DOC
     {
-        #region SLD_DOC
         public SldWorks swApp;
         public IModelDoc2 swModel;
 
@@ -19,7 +18,6 @@ namespace SLD_PDM.SLD
         {
             swApp = sldWorksApp;
         }
-        #endregion
 
         public IModelDoc2 AbrirDocumento(string caminhoArquivo, int tipoDocumento, bool visivel)
         {

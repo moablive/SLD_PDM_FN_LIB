@@ -118,6 +118,7 @@
   <ItemGroup>
     <Compile Include="LOG.cs" />
     <Compile Include="PDM\ERROR_RELOAD.cs" />
+    <Compile Include="PDM\PDM.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SLD\MODEL\objCAIXADELIMITADORA.cs" />
     <Compile Include="SLD\MODEL\objLISTACORTE.cs" />

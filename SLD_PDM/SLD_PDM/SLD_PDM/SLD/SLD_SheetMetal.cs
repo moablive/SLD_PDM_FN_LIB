@@ -3,6 +3,7 @@ using System;
 
 // SolidWorks
 using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
 
 namespace SLD_PDM.SLD
 {
@@ -16,32 +17,94 @@ namespace SLD_PDM.SLD
             swApp = sldWorksApp;
         }
 
-        // Verifica se o modelo é chapa metálica
-        public bool isSheetMetal(IModelDoc2 model)
+        /// <summary>
+        /// Verifica se o modelo é uma chapa metálica.
+        /// </summary>
+        public bool IsSheetMetal(IModelDoc2 model)
         {
-            bool sheetMetal = false;
             try
             {
-                ModelDocExtension mdExtension = model.Extension;
-                Feature f = (Feature)model.FirstFeature();
+                Feature feature = (Feature)model.FirstFeature();
 
-                while (f != null)
+                while (feature != null)
                 {
-                    if (f.GetTypeName2().ToUpper() == "SHEETMETAL")
+                    if (feature.GetTypeName2().ToUpper() == "SHEETMETAL")
                     {
-                        sheetMetal = true;
-                        break;
+                        return true; // Retorna verdadeiro ao encontrar a feature SheetMetal
                     }
-                    f = (Feature)f.GetNextFeature();
+                    feature = (Feature)feature.GetNextFeature();
                 }
             }
             catch (Exception ex)
             {
-                LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(isSheetMetal)}",
+                LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(IsSheetMetal)}",
                     "ERRO - Ao verificar se o item é SHEETMETAL. Ative o DEBUG para mais detalhes.", ex);
             }
-            return sheetMetal;
+
+            return false; // Retorna falso se não encontrar a feature
         }
+
+        /// <summary>
+        /// Planifica a chapa metálica, ativando a feature "Flat-Pattern".
+        /// </summary>
+        public bool PlanificarChapa(IModelDoc2 model)
+        {
+            try
+            {
+                Feature feature = (Feature)model.FirstFeature();
+
+                while (feature != null)
+                {
+                    // Verifica se a feature é do tipo "FlatPattern" (Planificação de chapa metálica)
+                    if (feature.GetTypeName2().ToUpper() == "FLATPATTERN")
+                    {
+                        // Descomprime (planifica) a chapa metálica
+                        feature.SetSuppression2((int)swFeatureSuppressionAction_e.swUnSuppressFeature, 2, null);
+                        return true; // Planificação bem-sucedida
+                    }
+
+                    feature = (Feature)feature.GetNextFeature();
+                }
+            }
+            catch (Exception ex)
+            {
+                LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(PlanificarChapa)}",
+                    "ERRO - Ao planificar a chapa metálica. Ative o DEBUG para mais detalhes.", ex);
+            }
+
+            return false; // Retorna falso caso a planificação não seja possível
+        }
+
+        /// <summary>
+        /// Desplanifica a chapa metálica, suprimindo a feature "Flat-Pattern".
+        /// </summary>
+        public void DesplanificarChapa(IModelDoc2 model)
+        {
+            try
+            {
+                Feature feature = (Feature)model.FirstFeature();
+
+                while (feature != null)
+                {
+                    // Verifica se a feature é do tipo "FlatPattern" (Planificação de chapa metálica)
+                    if (feature.GetTypeName2().ToUpper() == "FLATPATTERN")
+                    {
+                        // Suprime (desplanifica) a chapa metálica
+                        feature.SetSuppression2((int)swFeatureSuppressionAction_e.swSuppressFeature, 2, null);
+                        return; // Desplanificação bem-sucedida
+                    }
+
+                    feature = (Feature)feature.GetNextFeature();
+                }
+            }
+            catch (Exception ex)
+            {
+                LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(DesplanificarChapa)}",
+                    "ERRO - Ao desplanificar a chapa metálica. Ative o DEBUG para mais detalhes.", ex);
+            }
+        }
+
+        #region  CutListFolder
         public string getComprimento_CutListFolder(IModelDoc2 model)
         {
             try
@@ -67,7 +130,7 @@ namespace SLD_PDM.SLD
             catch (Exception ex)
             {
                 LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(getComprimento_CutListFolder)}",
-                    "ERRO - Ao obter o comprimento da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
+                  "ERRO - Ao obter o comprimento da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
                 throw; // Relança a exceção
             }
         }
@@ -96,7 +159,7 @@ namespace SLD_PDM.SLD
             catch (Exception ex)
             {
                 LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(getLargura_CutListFolder)}",
-                    "ERRO - Ao obter a largura da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
+                  "ERRO - Ao obter a largura da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
                 throw; // Relança a exceção
             }
         }
@@ -125,7 +188,7 @@ namespace SLD_PDM.SLD
             catch (Exception ex)
             {
                 LOG.GravarLog($"{nameof(SLD_SheetMetal).ToUpper()}:{nameof(getEspessura_CutListFolder)}",
-                    "ERRO - Ao obter a espessura da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
+                  "ERRO - Ao obter a espessura da CutListFolder. Ative o DEBUG para mais detalhes.", ex);
                 throw; // Relança a exceção
             }
         }
@@ -165,5 +228,6 @@ namespace SLD_PDM.SLD
                 throw; // Relança a exceção
             }
         }
+        #endregion
     }
 }
